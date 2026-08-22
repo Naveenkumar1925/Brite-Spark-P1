@@ -101,6 +101,10 @@ python -m src.main
 all-MiniLM-L6-v2) downloads automatically. This needs internet once; after
 that it is cached locally.
 
+**API quota:** this uses Google Gemini's free tier, which allows 20 requests
+per day. If you hit the limit, the program prints a clear message (it does
+not crash) — wait a while, or set your own `GEMINI_API_KEY` in `.env`.
+
 ---
 
 ## 6. How to run the tests

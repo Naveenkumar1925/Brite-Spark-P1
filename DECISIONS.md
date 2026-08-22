@@ -25,17 +25,26 @@ Written as I go, not reconstructed at the end.
 
 ## Model
 - Starting with an API model to get the floor working fast.
-- Behind one llm.generate() seam, so switching to an offline local model
-  later needs no change to retrieval / answer / refusal.
-
-  - API choice: Google Gemini (free tier). No card needed, generous limits,
-  and gemini-3.6-flash is plenty for grounded Q&A on a small manual.
-  Chosen over OpenAI/Anthropic (paid, no free tier) to stay zero-cost.
-- Offline is the end goal (no key dependency, no token limits).
+- The model is called in one place (llm.py) behind a single generate()
+  function. Nothing else in the code knows or cares which model is used,
+  so the model can be changed in one file without touching retrieval,
+  answer, or refusal.
+- API choice: Google Gemini (free tier). No card needed, and
+  gemini-3.6-flash is plenty for grounded Q&A on a small manual. Chosen
+  over OpenAI/Anthropic (paid, no free tier) to stay zero-cost.
+- Known limit: the free tier allows 20 requests/day. During judging the
+  reviewers use their own key (per the handbook), so this mainly affects
+  local testing. llm.py handles a spent quota with a clear message instead
+  of crashing.
+- Considered next step (not done, by choice): a local/offline model would
+  remove the API dependency and the daily limit entirely. The single
+  generate() seam is designed so this swap would touch only llm.py. Left
+  out to keep setup simple and within time; noted here as the first thing
+  to add with more time.
 
 ## Retrieval — why hybrid
 - Started with keyword search because it's simplest, needs no downloads,
-  and works offline. Wanted the floor running before adding anything heavy.
+  and needs no model download. Wanted the floor running before anything heavy.
 - Keyword search FAILED on realistic questions. Example: asked "what is the
   resource limit", but the manual says "resources exceed $4,000" and never
   uses the word "limit". Keyword matches exact words, not meaning, so it
