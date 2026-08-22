@@ -54,3 +54,27 @@ Written as I go, not reconstructed at the end.
   look clever. Everything above the floor is still being held back.
 - Cost: the embedding model downloads ~90MB on first run (documented in
   README). Accepted because retrieval accuracy is core to the floor.
+
+
+## Test findings (honest)
+Ran a 10-question set (tests/run_tests.py). 7/10 matched expectation.
+The mismatches are kept, not hidden:
+- False refusals (Q4 income disregards, Q9 prison): the system refuses some
+  questions the manual DOES answer. The refusal threshold is currently too
+  aggressive. Q9 also shows a vocabulary gap ("prison" vs the manual's
+  "correctional facility").
+- Contradiction not detected (Q8): asked how many days to report a change,
+  the system confidently answered "10 days" (§4.3.2) and did not notice
+  §9.1.4 says 30. It silently picked one side — the exact "fluent, confident,
+  wrong" risk this problem is about. Detecting and surfacing the conflict is
+  the next improvement.
+- Q7 was a mislabelled test, not a system failure — the manual does address
+  residency (§2.1.2), so answering was correct.
+
+## Refusal threshold (the judgement call)
+The spec asks where I draw the answer-vs-refuse line. Current setting leans
+CAUTIOUS: when grounding is unclear, refuse. Trade-off: this avoids confident
+wrong answers (the main harm) but causes false refusals (Q4, Q9). For a
+benefits office I judged "refuse when unsure" safer than "guess", because a
+wrong yes/no about entitlement harms a real person. The false refusals are
+the cost of that choice, and are the first thing I would tune with more time.
