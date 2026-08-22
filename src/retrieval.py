@@ -95,7 +95,7 @@ def _keyword_scores(question, clauses):
     return normalized
 
 
-def search(question, clauses, top_k=5):
+def search(question, clauses, top_k=10):
     """Return the top_k clauses by a blend of keyword and semantic match."""
     # semantic scores (0..1)
     q_emb = _MODEL.encode(question, convert_to_tensor=True)
