@@ -9,6 +9,10 @@ Rules:
 - Use only the information in these clauses. Do not use any outside knowledge.
 - Every claim must come from a clause. Cite the clause number like (§4.3.2).
 - If the clauses do not contain the answer, say exactly: NOT_IN_MANUAL
+- IMPORTANT: If two or more clauses give conflicting or inconsistent answers
+  to the question (for example, different time limits or amounts), do NOT pick
+  one silently. Instead, state that the manual is inconsistent, and show BOTH
+  clauses with their citations so the reader can see the conflict.
 - Keep the answer short and in plain language.
 
 CLAUSES:
