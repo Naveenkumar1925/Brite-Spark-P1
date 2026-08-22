@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+# model weights are large — never commit them
+*.gguf
+models/
+work.md
