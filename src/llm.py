@@ -1,4 +1,4 @@
-"""The one place the model is called. Swap here to change model."""
+"""The one place the model is called. Change the model here if needed."""
 import os
 import time
 
@@ -47,7 +47,10 @@ def generate(prompt, retries=3):
             time.sleep(wait)
 
     raise RuntimeError(
-        f"The model is unavailable after {retries} tries "
-        f"(busy or rate-limited). Please try again shortly.\n"
+        "The Gemini API could not be reached after several tries. "
+        "This is usually a temporary rate limit or the free-tier daily "
+        "quota (20 requests/day) being used up.\n"
+        "What to do: wait a short while and try again, or set a different "
+        "GEMINI_API_KEY in your .env file.\n"
         f"Details: {last_error}"
     )
