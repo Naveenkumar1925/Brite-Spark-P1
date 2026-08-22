@@ -14,12 +14,31 @@ MANUAL_PATH = "data/policy-manual.md"
 
 
 def ask(question, clauses):
-    """Answer one question (or refuse). clauses are passed in so we
-    don't reload/re-embed the manual for every question."""
-    found = search(question, clauses)
+    """Answer one question (or refuse), with source clauses shown."""
+    found = search(question, clauses, top_k=8)
     raw = build_answer(question, found)
+
     if is_refusal(raw):
         return refusal_message(question)
+
+    # find which § numbers the answer cited, and show their source text
+    import re
+    cited = re.findall(r"§\s?(\d+(?:\.\d+)+)", raw)
+    seen = []
+    sources = []
+    for section in cited:
+        if section in seen:
+            continue
+        seen.append(section)
+        for c in clauses:
+            if c["section"] == section:
+                # strip the leading bold number from the stored text
+                text = re.sub(r"^\*\*[\d.]+\*\*\s*", "", c["text"]).strip()
+                sources.append(f"§{section}: {text}")
+                break
+
+    if sources:
+        return raw + "\n\nSources:\n" + "\n".join(sources)
     return raw
 
 

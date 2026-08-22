@@ -87,3 +87,18 @@ wrong answers (the main harm) but causes false refusals (Q4, Q9). For a
 benefits office I judged "refuse when unsure" safer than "guess", because a
 wrong yes/no about entitlement harms a real person. The false refusals are
 the cost of that choice, and are the first thing I would tune with more time.
+
+## Retrieval recall (test findings)
+- Q4 (income disregards) failed because the answering clause (§6.4.1) ranked
+  just outside the top 5. Fixed by widening retrieval to top 10.
+- Q9 (prison) still fails: the user's word "prison" is semantically distant
+  from the manual's "correctional facility" (§4.1.1), so semantic search does
+  not surface it even in the top 10. This is a genuine vocabulary-gap
+  limitation of retrieval. A query-expansion step (adding synonyms before
+  search) would likely fix it, but adds a model call and complexity; left as
+  a documented limitation and the next thing to improve.
+
+## Verifiable citations (bonus)
+- After answering, the full text of each cited § clause is printed under a
+  "Sources:" heading, so a caseworker can verify the answer against the
+  manual without leaving the screen. Refusals show no sources.
