@@ -67,7 +67,7 @@ pip install -r requirements.txt
 This installs the Gemini client, the embedding model library, and helpers.
 It may take a few minutes (one dependency, torch, is large).
 
-**Step 4 — Set your Gemini API key. Create a file named `.env` in the project root
+**Step 4 — Set your Gemini API key. Create a file named `.env` in the project root**
    with this one line (get a free key at https://aistudio.google.com/apikey):
    Then create a file named `.env` in the project root containing this one line:
 ```
