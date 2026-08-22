@@ -13,15 +13,26 @@ No web UI — a CLI is the expected delivery for this problem.
 - Ships with a 10-question test set and honest pass/fail results.
 
 ## Setup
+
+1. Clone and enter the project:
 ```bash
-# 1. clone
-git clone https://github.com/Naveenkumar1925/Brite-Spark-P1.git
-cd Brite-Spark-P1
-
-# 2. create environment
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-
-# 3. install dependencies
-pip install -r requirements.txt
+   git clone https://github.com/Naveenkumar1925/Brite-Spark-P1.git
+   cd Brite-Spark-P1
 ```
+
+2. Create and activate a virtual environment:
+```bash
+   python -m venv .venv
+   # Windows:
+   .venv\Scripts\activate
+   # Mac/Linux:
+   source .venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
+   pip install -r requirements.txt
+```
+
+4. Set your Gemini API key. Create a file named `.env` in the project root
+   with this one line (get a free key at https://aistudio.google.com/apikey):
