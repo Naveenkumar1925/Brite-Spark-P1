@@ -58,7 +58,9 @@ def load_clauses(manual_path):
         clauses.append(current)
 
     # embed every clause once, up front
-    texts = [c["text"] for c in clauses]
+    texts = []
+    for c in clauses:
+        texts.append(c["text"])
     embeddings = _MODEL.encode(texts, convert_to_tensor=True)
     for c, emb in zip(clauses, embeddings):
         c["embedding"] = emb
@@ -73,21 +75,38 @@ def _keyword_scores(question, clauses):
     scores = []
     for c in clauses:
         c_words = re.findall(r"[a-z]+", c["text"].lower())
-        overlap = sum(1 for w in c_words if w in q_words)
+        overlap = 0
+        for w in c_words:
+            if w in q_words:
+                overlap += 1
         scores.append(overlap)
-    top = max(scores) if scores else 0
+    if scores:
+        top = scores[0]
+        for s in scores:
+            if s > top:
+                top = s
+    else:
+        top = 0
     if top == 0:
         return [0.0] * len(clauses)
-    return [s / top for s in scores]
+    normalized = []
+    for s in scores:
+        normalized.append(s / top)
+    return normalized
 
 
 def search(question, clauses, top_k=5):
     """Return the top_k clauses by a blend of keyword and semantic match."""
     # semantic scores (0..1)
     q_emb = _MODEL.encode(question, convert_to_tensor=True)
-    clause_embs = torch.stack([c["embedding"] for c in clauses])
+    emb_list = []
+    for c in clauses:
+        emb_list.append(c["embedding"])
+    clause_embs = torch.stack(emb_list)
     sem = util.cos_sim(q_emb, clause_embs)[0]
-    sem_scores = [float(s) for s in sem]
+    sem_scores = []
+    for s in sem:
+        sem_scores.append(float(s))
 
     # keyword scores (0..1)
     kw_scores = _keyword_scores(question, clauses)
@@ -99,4 +118,7 @@ def search(question, clauses, top_k=5):
         blended.append((score, c))
 
     blended.sort(key=lambda x: x[0], reverse=True)
-    return [c for _, c in blended[:top_k]]
+    top_results = []
+    for score, c in blended[:top_k]:
+        top_results.append(c)
+    return top_results

@@ -21,8 +21,9 @@ ANSWER:"""
 
 def build_answer(question, clauses):
     """Return a grounded answer string that cites the § clauses used."""
-    clause_text = "\n\n".join(
-        f"§{c['section']}: {c['text']}" for c in clauses
-    )
+    parts = []
+    for c in clauses:
+        parts.append(f"§{c['section']}: {c['text']}")
+    clause_text = "\n\n".join(parts)
     prompt = PROMPT.format(clauses=clause_text, question=question)
     return generate(prompt)
