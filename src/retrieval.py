@@ -1,6 +1,10 @@
-"""Finds relevant clauses from the manual."""
+"""Finds relevant clauses from the manual. No answering, no refusing.
+Hybrid search: keyword (exact words) + semantic (meaning), combined."""
 import re
-# A solid fallback list, used if nltk is unavailable (keeps clean clone safe).
+import torch
+
+from sentence_transformers import SentenceTransformer, util
+
 _FALLBACK_STOPWORDS = {
     "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
     "for", "of", "to", "in", "on", "at", "by", "and", "or", "but", "if",
@@ -14,49 +18,8 @@ _FALLBACK_STOPWORDS = {
     "here", "about", "over", "under", "up", "down", "out", "off",
 }
 
-def load_clauses(manual_path):
-    """Split the manual into clauses keyed by their § number.
-    Returns a list of dicts: {"section": "4.3.2", "text": "..."}."""
-    text = open(manual_path, encoding="utf-8").read()
-    lines = text.splitlines()
-
-    clauses = []
-    current = None
-    for line in lines:
-        # a clause starts with a bold number like **4.3.2** or **1.4.6 Applicant**
-        m = re.match(r"\*\*(\d+(?:\.\d+)+)\*\*", line)
-        if m:
-            if current:
-                clauses.append(current)
-            section = m.group(1)
-            current = {"section": section, "text": line}
-        elif current:
-            current["text"] += " " + line.strip()
-    if current:
-        clauses.append(current)
-    return clauses
-
-
-def search(question, clauses, top_k=5):
-    """Return the top_k clauses whose text best matches the question words."""
-    q_words = set(re.findall(r"[a-z]+", question.lower())) - STOPWORDS
-
-    scored = []
-    for c in clauses:
-        c_words = re.findall(r"[a-z]+", c["text"].lower())
-        overlap = 0
-        for w in c_words:
-            if w in q_words:
-                overlap += 1
-        if overlap > 0:
-            scored.append((overlap, c))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    return [c for _, c in scored[:top_k]]
 
 def _load_stopwords():
-    """Use nltk's standard English stopwords; fall back to the built-in
-    list if nltk (or its data) isn't available."""
     try:
         import nltk
         from nltk.corpus import stopwords
@@ -70,3 +33,70 @@ def _load_stopwords():
 
 
 STOPWORDS = _load_stopwords()
+
+# Load the embedding model once (downloads ~90MB the first time).
+_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+
+
+def load_clauses(manual_path):
+    """Split the manual into clauses keyed by their § number.
+    Also pre-computes a semantic embedding for each clause."""
+    text = open(manual_path, encoding="utf-8").read()
+    lines = text.splitlines()
+
+    clauses = []
+    current = None
+    for line in lines:
+        m = re.match(r"\*\*(\d+(?:\.\d+)+)\*\*", line)
+        if m:
+            if current:
+                clauses.append(current)
+            current = {"section": m.group(1), "text": line}
+        elif current:
+            current["text"] += " " + line.strip()
+    if current:
+        clauses.append(current)
+
+    # embed every clause once, up front
+    texts = [c["text"] for c in clauses]
+    embeddings = _MODEL.encode(texts, convert_to_tensor=True)
+    for c, emb in zip(clauses, embeddings):
+        c["embedding"] = emb
+
+    return clauses
+
+
+def _keyword_scores(question, clauses):
+    """Score each clause by how many non-filler question words it contains,
+    normalised to 0..1."""
+    q_words = set(re.findall(r"[a-z]+", question.lower())) - STOPWORDS
+    scores = []
+    for c in clauses:
+        c_words = re.findall(r"[a-z]+", c["text"].lower())
+        overlap = sum(1 for w in c_words if w in q_words)
+        scores.append(overlap)
+    top = max(scores) if scores else 0
+    if top == 0:
+        return [0.0] * len(clauses)
+    return [s / top for s in scores]
+
+
+def search(question, clauses, top_k=5):
+    """Return the top_k clauses by a blend of keyword and semantic match."""
+    # semantic scores (0..1)
+    q_emb = _MODEL.encode(question, convert_to_tensor=True)
+    clause_embs = torch.stack([c["embedding"] for c in clauses])
+    sem = util.cos_sim(q_emb, clause_embs)[0]
+    sem_scores = [float(s) for s in sem]
+
+    # keyword scores (0..1)
+    kw_scores = _keyword_scores(question, clauses)
+
+    # blend: semantic leads, keyword boosts exact-term matches
+    blended = []
+    for c, sem_s, kw_s in zip(clauses, sem_scores, kw_scores):
+        score = 0.7 * sem_s + 0.3 * kw_s
+        blended.append((score, c))
+
+    blended.sort(key=lambda x: x[0], reverse=True)
+    return [c for _, c in blended[:top_k]]
