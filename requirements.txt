@@ -1,5 +1,5 @@
-  google-genai
-  python-dotenv
-  sentence-transformers
-  torch
-  nltk
+google-genai
+python-dotenv
+sentence-transformers
+torch
+nltk
