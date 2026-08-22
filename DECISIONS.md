@@ -37,3 +37,4 @@ Written as I go, not reconstructed at the end.
 - Starting with simple keyword search. No downloads, works immediately.
 - Enough to get grounded answers running (the floor). Can add semantic
   search later only if keyword proves too weak.
+- retrieval.py: clauses split on bold § numbers, keyword-overlap search.
