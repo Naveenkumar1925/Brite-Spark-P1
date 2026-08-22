@@ -36,3 +36,7 @@ No web UI — a CLI is the expected delivery for this problem.
 
 4. Set your Gemini API key. Create a file named `.env` in the project root
    with this one line (get a free key at https://aistudio.google.com/apikey):
+   Then create a file named `.env` in the project root containing this one line:
+```
+   GEMINI_API_KEY=your_key_here
+```
