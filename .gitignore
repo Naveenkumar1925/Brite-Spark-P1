@@ -6,3 +6,5 @@ __pycache__/
 *.gguf
 models/
 work.md
+.env
+.vscode/

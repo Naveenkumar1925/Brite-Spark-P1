@@ -1,4 +1,4 @@
-"""Finds relevant clauses from the manual. No answering, no refusing."""
+"""Finds relevant clauses from the manual."""
 import re
 
 
@@ -19,7 +19,6 @@ def load_clauses(manual_path):
             section = m.group(1)
             current = {"section": section, "text": line}
         elif current:
-            # continuation line belongs to the current clause
             current["text"] += " " + line.strip()
     if current:
         clauses.append(current)
@@ -33,7 +32,10 @@ def search(question, clauses, top_k=5):
     scored = []
     for c in clauses:
         c_words = re.findall(r"[a-z]+", c["text"].lower())
-        overlap = sum(1 for w in c_words if w in q_words)
+        overlap = 0
+        for w in c_words:
+            if w in q_words:
+                overlap += 1
         if overlap > 0:
             scored.append((overlap, c))
 
