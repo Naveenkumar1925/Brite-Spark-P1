@@ -27,6 +27,10 @@ Written as I go, not reconstructed at the end.
 - Starting with an API model to get the floor working fast.
 - Behind one llm.generate() seam, so switching to an offline local model
   later needs no change to retrieval / answer / refusal.
+
+  - API choice: Google Gemini (free tier). No card needed, generous limits,
+  and Gemini 1.5 Flash is plenty for grounded Q&A on a small manual.
+  Chosen over OpenAI/Anthropic (paid, no free tier) to stay zero-cost.
 - Offline is the end goal (no key dependency, no token limits).
 
 ## Retrieval
