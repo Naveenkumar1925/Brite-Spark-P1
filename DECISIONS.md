@@ -23,3 +23,13 @@ Written as I go, not reconstructed at the end.
   broken reference is the mechanism of the gap, not a separate flaw.
 - No third flaw found.
 
+## Model
+- Starting with an API model to get the floor working fast.
+- Behind one llm.generate() seam, so switching to an offline local model
+  later needs no change to retrieval / answer / refusal.
+- Offline is the end goal (no key dependency, no token limits).
+
+## Retrieval
+- Starting with simple keyword search. No downloads, works immediately.
+- Enough to get grounded answers running (the floor). Can add semantic
+  search later only if keyword proves too weak.
