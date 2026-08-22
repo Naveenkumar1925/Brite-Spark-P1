@@ -29,7 +29,7 @@ Written as I go, not reconstructed at the end.
   later needs no change to retrieval / answer / refusal.
 
   - API choice: Google Gemini (free tier). No card needed, generous limits,
-  and Gemini 1.5 Flash is plenty for grounded Q&A on a small manual.
+  and gemini-3.6-flash is plenty for grounded Q&A on a small manual.
   Chosen over OpenAI/Anthropic (paid, no free tier) to stay zero-cost.
 - Offline is the end goal (no key dependency, no token limits).
 
@@ -38,3 +38,10 @@ Written as I go, not reconstructed at the end.
 - Enough to get grounded answers running (the floor). Can add semantic
   search later only if keyword proves too weak.
 - retrieval.py: clauses split on bold § numbers, keyword-overlap search.
+
+  ## Retrieval (updated)
+  - Hybrid: 70% semantic (all-MiniLM-L6-v2) + 30% keyword.
+  - Keyword alone failed real questions: "resource limit" didn't match the
+    manual's "resources exceed $4,000". Semantic was needed for the floor
+    to actually work, so this is not over-building.
+  - Embedding model downloads ~90MB on first run (noted in README).
