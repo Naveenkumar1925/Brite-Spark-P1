@@ -67,9 +67,9 @@ pip install -r requirements.txt
 This installs the Gemini client, the embedding model library, and helpers.
 It may take a few minutes (one dependency, torch, is large).
 
-**Step 4 — Set your Gemini API key. Create a file named `.env` in the project root**
-   with this one line (get a free key at https://aistudio.google.com/apikey):
-   Then create a file named `.env` in the project root containing this one line:
+**Step 4 — Set your Gemini API key.**
+Get a free key at https://aistudio.google.com/apikey
+Then create a file named `.env` in the project root containing this one line:
 ```
    GEMINI_API_KEY=your_key_here
 ```
@@ -78,7 +78,7 @@ The `.env` file is private and is never committed to the repository.
 
 ---
 
-## 5. How to run
+## 4. How to run
 
 **Ask a single question:**
 ```bash
@@ -107,7 +107,7 @@ not crash) — wait a while, or set your own `GEMINI_API_KEY` in `.env`.
 
 ---
 
-## 6. How to run the tests
+## 5. How to run the tests
 
 The project ships with a 10-question test set that checks both answering and
 refusing, and prints honest pass/fail results.
@@ -129,7 +129,7 @@ The questions and the honest results are also documented in
 
 ---
 
-## 7. How the system works
+## 6. How the system works
 
 One question flows through four steps:
 
