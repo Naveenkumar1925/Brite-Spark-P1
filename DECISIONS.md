@@ -102,3 +102,47 @@ the cost of that choice, and are the first thing I would tune with more time.
 - After answering, the full text of each cited § clause is printed under a
   "Sources:" heading, so a caseworker can verify the answer against the
   manual without leaving the screen. Refusals show no sources.
+
+  ## Day-two change: Amendment 2026-01 (date-aware answers)
+
+The requirement changed: answers must now be correct for the DATE of the
+claim being asked about, because Amendment 2026-01 takes effect 1 March 2026.
+
+### What I changed
+- Loaded the amendment as part of the corpus, tagging each clause with its
+  source ("amendment-2026-01") so the system knows which text is an amendment.
+- Added an optional --date argument (defaults to today). The claim date flows
+  through to the answer step.
+- Made the answer prompt date-aware: it applies the base manual for claims
+  before 1 March 2026 and the amended figures on/after, and it states which
+  version it used and why.
+- Encoded the transitional rules (amendment paragraph 5): money/threshold/
+  sanction changes trigger on the DETERMINATION date, but the reporting-
+  deadline change triggers on the date the CHANGE OCCURRED. These use
+  different date triggers — a naive "new rules after March" would get the
+  reporting deadline wrong.
+- Fixed a retrieval gap: an amendment clause (e.g. "in §6.4.1(a) substitute
+  $175") did not always rank high enough to be retrieved alongside the base
+  clause, so the answer used the old figure. Now, whenever a base clause is
+  retrieved, any amendment clause that references its section number is pulled
+  in too. Verified: earnings disregard returns $175 for an April 2026 claim
+  and $120 for a January 2026 claim.
+
+### Why the design absorbed this cleanly
+- The change landed in three clear places (retrieval, answer, main) rather
+  than scattered everywhere, because the modules were kept separable. The
+  refusal logic did not need to change at all.
+- The contradiction I found earlier (§4.3.2 vs §9.1.4) is actually resolved
+  by the amendment (both become 14 days) for changes occurring on/after
+  1 March 2026 — so the date logic and the contradiction handling work
+  together.
+
+### What I chose NOT to do / would do with more time
+- Lettered amendment clauses like §10.5.3A are parsed but the section-number
+  regex is simple; I did not fully harden it for every lettered edge case.
+- The amendment-attachment matches on section numbers appearing in the
+  amendment text. This is simple and works here; a more robust version would
+  parse the amendment's "substitute" instructions explicitly.
+- I relied on the model to apply the transitional rules from the prompt
+  rather than computing them in code. With more time I would move the
+  date-vs-rule decision into code for stronger guarantees.
