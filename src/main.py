@@ -1,3 +1,15 @@
+"""CLI entry point.
+- Run with a question:   python -m src.main "your question"
+- With a claim date:     python -m src.main "your question" --date 2026-02-15
+- Run with nothing:      python -m src.main   (starts an interactive loop)
+
+Each question is answered independently. No memory between questions
+(the spec does not require multi-turn conversation).
+
+The claim date matters: Amendment 2026-01 takes effect 1 March 2026, so the
+correct answer can depend on the date of the claim being asked about. If no
+date is given, today's date is used.
+"""
 import re
 import sys
 from datetime import date
@@ -10,9 +22,29 @@ MANUAL_PATH = "data/policy-manual.md"
 AMENDMENT_PATH = "data/amendment-2026-01.md"
 
 
+def _attach_amendments(found, all_clauses):
+    """For every retrieved clause, also include any amendment clause that
+    references its section number, so the answer sees the change too."""
+    found_sections = []
+    for c in found:
+        found_sections.append(c["section"])
+
+    result = list(found)
+    for c in all_clauses:
+        if c.get("source") == "manual":
+            continue  # only pull in amendment clauses
+        for section in found_sections:
+            if section in c["text"]:
+                if c not in result:
+                    result.append(c)
+                break
+    return result
+
+
 def ask(question, clauses, claim_date):
     """Answer one question (or refuse), for a given claim date, with sources."""
     found = search(question, clauses, top_k=8)
+    found = _attach_amendments(found, clauses)
     raw = build_answer(question, found, claim_date)
 
     if is_refusal(raw):
