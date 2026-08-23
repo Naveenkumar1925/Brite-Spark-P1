@@ -37,25 +37,37 @@ STOPWORDS = _load_stopwords()
 # Load the embedding model once (downloads ~90MB the first time).
 _MODEL = SentenceTransformer("all-MiniLM-L6-v2")
 
-
-def load_clauses(manual_path):
-    """Split the manual into clauses keyed by their § number.
-    Also pre-computes a semantic embedding for each clause."""
-    text = open(manual_path, encoding="utf-8").read()
+def _parse_clauses(text, source):
+    """Split one document's text into clauses keyed by § number.
+    'source' records where each clause came from (manual or amendment)."""
     lines = text.splitlines()
-
     clauses = []
     current = None
     for line in lines:
-        m = re.match(r"\*\*(\d+(?:\.\d+)+)\*\*", line)
+        m = re.match(r"\*\*(\d+(?:\.\d+)+)", line)   # matches **4.3.2** or **4.3.2 Title**
         if m:
             if current:
                 clauses.append(current)
-            current = {"section": m.group(1), "text": line}
+            current = {"section": m.group(1), "text": line, "source": source}
         elif current:
             current["text"] += " " + line.strip()
     if current:
         clauses.append(current)
+    return clauses
+
+
+def load_clauses(manual_path, amendment_path=None):
+    """Load clauses from the manual, and (if given) the amendment.
+    Each clause carries its source. Amendment clauses are tagged so the
+    answer step can apply the version in force on the claim's date.
+    Also pre-computes a semantic embedding for each clause."""
+    text = open(manual_path, encoding="utf-8").read()
+    clauses = _parse_clauses(text, source="manual")
+
+    if amendment_path:
+        amend_text = open(amendment_path, encoding="utf-8").read()
+        amend_clauses = _parse_clauses(amend_text, source="amendment-2026-01")
+        clauses += amend_clauses
 
     # embed every clause once, up front
     texts = []
