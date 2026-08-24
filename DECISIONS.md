@@ -130,3 +130,10 @@ Ran the 10-question set (tests/run_tests.py): 9/10 matched expectation.
   next improvement.
 - A test set where everything passes means the questions were too easy, so the
   one honest failure is kept deliberately.
+
+### Spanning-date claims (verified)
+- Tested the hardest transitional case: a claim spanning 1 March 2026.
+- The system correctly applied §5.3 (apportionment): $120 for February
+  (base manual) and $175 for March (amended), citing all relevant clauses.
+- This works without special-casing — the date-aware prompt handles it from
+  the amendment text itself.

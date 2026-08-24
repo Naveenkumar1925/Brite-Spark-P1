@@ -1,9 +1,4 @@
-"""Turns the 'cannot ground an answer' signal into a helpful refusal.
 
-We do NOT hard-code specific questions (like the student gap). We refuse
-whenever the answer step could not ground an answer in the clauses.
-This handles the known gaps AND any new one the day-two change might add.
-"""
 
 # The signal answer.py returns when the clauses don't cover the question.
 NOT_IN_MANUAL = "NOT_IN_MANUAL"

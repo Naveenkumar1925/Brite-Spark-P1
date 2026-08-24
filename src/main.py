@@ -1,15 +1,4 @@
-"""CLI entry point.
-- Run with a question:   python -m src.main "your question"
-- With a claim date:     python -m src.main "your question" --date 2026-02-15
-- Run with nothing:      python -m src.main   (starts an interactive loop)
 
-Each question is answered independently. No memory between questions
-(the spec does not require multi-turn conversation).
-
-The claim date matters: Amendment 2026-01 takes effect 1 March 2026, so the
-correct answer can depend on the date of the claim being asked about. If no
-date is given, today's date is used.
-"""
 import re
 import sys
 from datetime import date
@@ -65,9 +54,12 @@ def ask(question, clauses, claim_date):
                 sources.append(f"§{section}{tag}: {text}")
                 break
 
+    divider = "\n" + "-" * 60 + "\n"
     if sources:
-        return raw + "\n\nSources:\n" + "\n".join(sources)
-    return raw
+        body = raw + "\n\nSources:\n" + "\n".join(sources)
+    else:
+        body = raw
+    return divider + body + divider
 
 
 def interactive_loop(clauses, claim_date):
